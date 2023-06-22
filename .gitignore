@@ -24,6 +24,8 @@
 /workspace.xml
 /MSAlunos/.gitignore
 /MSAlunos/src/main/resources/application.properties
+/MSDisciplinas/src/main/resources/application.properties
+
 # Editor-based HTTP Client requests
 /httpRequests/
 # Datasource local storage ignored files
