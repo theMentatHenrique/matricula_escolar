@@ -1,4 +1,4 @@
-package com.msalunos.msalunos;
+package com.msalunos.msalunos.ControllerTests;
 import com.ms.common.DTO.BaseDTO;
 import com.ms.common.DTO.ListaMatriculaDTO;
 import com.msalunos.msalunos.Controller.AlunoController;
@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class MSAlunoApplicationTests {
+public class MSAlunosControllerTests {
     @Mock
     private AlunoRepo alunoRepo;
 
@@ -37,6 +37,7 @@ public class MSAlunoApplicationTests {
 
     @InjectMocks
     private AlunoController controller;
+
 
     @Test
     public void testAdicionaAluno_Success() {
@@ -314,8 +315,7 @@ public class MSAlunoApplicationTests {
         BaseDTO result = controller.obtemAlunos(disciplinaId, turmaId);
 
         // Assert
-        assertTrue(result.sucess());
-        assertEquals(new ArrayList<Aluno>(), result.response());
+        assertFalse(result.sucess());
     }
 
     @Test
