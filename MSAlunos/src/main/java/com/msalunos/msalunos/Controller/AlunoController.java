@@ -120,13 +120,13 @@ public class AlunoController {
         try {
             Cadeira cadeira = cadeiraRepo.findByFk(disciplina_id, turma_id);
 
-            if (cadeira == null || cadeira.getAlunos() == null) {
+            if (cadeira == null || cadeira.getAlunos() == null || cadeira.getAlunos().isEmpty()) {
                 throw new Exception("Alunos não encontrados para esta cadeira.");
             }
             List<Aluno> alunos = cadeira.getAlunos();
             return new BaseDTO(true, alunos);
         } catch (Exception e) {
-            return new BaseDTO(true, e.getMessage());
+            return new BaseDTO(false, e.getMessage());
         }
 
     }
