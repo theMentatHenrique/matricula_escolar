@@ -10,4 +10,7 @@ public class CommonApplication {
 		SpringApplication.run(CommonApplication.class, args);
 	}
 
+
+
+
 }
