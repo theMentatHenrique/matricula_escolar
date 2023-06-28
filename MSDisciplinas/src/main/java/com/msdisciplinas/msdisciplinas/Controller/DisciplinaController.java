@@ -1,6 +1,5 @@
 package com.msdisciplinas.msdisciplinas.Controller;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.ms.common.DTO.BaseDTO;
 import com.msdisciplinas.msdisciplinas.DTO.DadosCadastroDisciplinaDTO;
 import com.msdisciplinas.msdisciplinas.DTO.DadosCadeiraAlunoDTO;
@@ -64,7 +63,7 @@ public class DisciplinaController {
     @GetMapping("/obter_alunos_por_cadeira")
     public BaseDTO obtemAlunosPorCadeira(@RequestBody @NotNull DadosCadeiraAlunoDTO tuplaCodTurmaDisciplina) {
         try{
-            return disciplinaService.encontraAlunos(tuplaCodTurmaDisciplina.codigo_disciplina(), tuplaCodTurmaDisciplina.cod_turma());
+            return disciplinaService.encontrarAlunosPorCadeira(tuplaCodTurmaDisciplina.codigo_disciplina(), tuplaCodTurmaDisciplina.cod_turma());
         } catch (Exception e) {
             return new BaseDTO(false, e.getMessage());
         }

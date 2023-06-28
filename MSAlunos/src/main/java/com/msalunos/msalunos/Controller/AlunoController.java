@@ -41,7 +41,6 @@ public class AlunoController {
         } catch (Exception e) {
             return new BaseDTO(false, e.getMessage());
         }
-
     }
 
     @GetMapping("/listar_alunos/{nome}")

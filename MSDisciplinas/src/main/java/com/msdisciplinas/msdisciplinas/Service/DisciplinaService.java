@@ -1,12 +1,11 @@
 package com.msdisciplinas.msdisciplinas.Service;
 
-import com.fasterxml.jackson.databind.ser.Serializers;
 import com.ms.common.DTO.BaseDTO;
 import com.ms.common.DTO.ListaMatriculaDTO;
 import com.ms.common.DTO.MatriculaAlunoDTO;
 import com.msdisciplinas.msdisciplinas.DTO.DadosMatriculaDTO;
 import com.msdisciplinas.msdisciplinas.DTO.DadosCadeiraAlunoDTO;
-import com.msdisciplinas.msdisciplinas.DTO.IdentificadoresDiscTurmaDTO;
+import com.msdisciplinas.msdisciplinas.DTO.IdsCadeira;
 import com.msdisciplinas.msdisciplinas.ENUM.CadastroDisciplinaEnum;
 import com.msdisciplinas.msdisciplinas.Model.Disciplina;
 import com.msdisciplinas.msdisciplinas.Model.Turma;
@@ -35,7 +34,7 @@ public class DisciplinaService {
             if (turma.isEmpty()) {
                 return CadastroDisciplinaEnum.SEM_TURMAS;
             }
-            IdentificadoresDiscTurmaDTO tuplaIdsDiscTurma = obtemDiscTurma(disciplina.getCodigo_disciplina(), cod_turma);
+            IdsCadeira tuplaIdsDiscTurma = obtemDisciplinaComTurma(disciplina.getCodigo_disciplina(), cod_turma);
             if (tuplaIdsDiscTurma != null) {
                 return CadastroDisciplinaEnum.DISCIPLINA_JA_COM_TURMA;
             }
@@ -51,7 +50,7 @@ public class DisciplinaService {
 
     public List<DadosCadeiraAlunoDTO> obtemListaMatriculasAluno(long codMatric) {
         try{
-            ListaMatriculaDTO listaMatriculaDTO = invocaMSlistaCadeiras(codMatric);
+            ListaMatriculaDTO listaMatriculaDTO = listarCadeirasAluno(codMatric);
             if (!listaMatriculaDTO.sucesso()) {return null;}
 
             List<DadosCadeiraAlunoDTO> listaDiscTurmas = new ArrayList<>();
@@ -70,27 +69,27 @@ public class DisciplinaService {
         }
     }
 
-    private static ListaMatriculaDTO invocaMSlistaCadeiras(long codMatric) {
+    private static ListaMatriculaDTO listarCadeirasAluno(long codMatric) {
         String url = "http://localhost:8080/obter_cadeiras_aluno/";
         url += String.valueOf(codMatric);
         RestTemplate restTemplate = new RestTemplate();
         ListaMatriculaDTO listaMatriculaDTO = restTemplate.getForObject(url, ListaMatriculaDTO.class);
         return listaMatriculaDTO;
     }
-
-    public BaseDTO encontraAlunos(long codDisciplina, long codTurma) {
+    
+    public BaseDTO encontrarAlunosPorCadeira(long codDisciplina, long codTurma) {
         try{
-            IdentificadoresDiscTurmaDTO tuplaIdsDiscTurma = obtemDiscTurma(codDisciplina, codTurma);
+            IdsCadeira tuplaIdsDiscTurma = obtemDisciplinaComTurma(codDisciplina, codTurma);
             if (tuplaIdsDiscTurma == null) {
                 return new BaseDTO(false, "Não foi encontrado nenhum aluno nesta cadeira.");
             }
-            return invocaMSBuscaAlunos(tuplaIdsDiscTurma.disciplina_id(), tuplaIdsDiscTurma.turma_id());
+            return buscarAlunos(tuplaIdsDiscTurma.disciplina_id(), tuplaIdsDiscTurma.turma_id());
         } catch (Exception e) {
             return new BaseDTO(false, e.getMessage());
         }
     }
 
-    private BaseDTO invocaMSBuscaAlunos(long disciplinaId, long turmaId) {
+    private BaseDTO buscarAlunos(long disciplinaId, long turmaId) {
         try{
             String url = "http://localhost:8080/obter_alunos_por_cadeira/";
             url += String.valueOf(disciplinaId);
@@ -107,12 +106,12 @@ public class DisciplinaService {
         }
     }
 
-    private IdentificadoresDiscTurmaDTO obtemDiscTurma(long codDisciplina, long codTurma) {
+    private IdsCadeira obtemDisciplinaComTurma(long codDisciplina, long codTurma) {
         List<Disciplina> disciplinas = iRepoDisciplina.findDisciplinas(codDisciplina);
         for (Disciplina disciplina : disciplinas) {
             for(Turma turma : disciplina.getTurma()) {
                 if (turma.getCod_turma() == codTurma) {
-                    return new IdentificadoresDiscTurmaDTO(disciplina.getId(), turma.getId());
+                    return new IdsCadeira(disciplina.getId(), turma.getId());
                 }
             }
         }
@@ -121,14 +120,14 @@ public class DisciplinaService {
 
     public BaseDTO matricularAluno(DadosMatriculaDTO dadosMatriculaDTO) throws Exception {
         try {
-            IdentificadoresDiscTurmaDTO tuplaIdsDiscTurma = encontraDisciplinaComTurma(dadosMatriculaDTO);
-            return invocaMSMatricularAluno(dadosMatriculaDTO, tuplaIdsDiscTurma);
+            IdsCadeira tuplaIdsDiscTurma = encontraDisciplinaComTurma(dadosMatriculaDTO);
+            return matricularAluno(dadosMatriculaDTO, tuplaIdsDiscTurma);
         } catch (Exception e) {
             return new BaseDTO(true,e.getMessage());
         }
     }
 
-    private IdentificadoresDiscTurmaDTO encontraDisciplinaComTurma(DadosMatriculaDTO dadosMatriculaDTO) {
+    private IdsCadeira encontraDisciplinaComTurma(DadosMatriculaDTO dadosMatriculaDTO) {
         List<Disciplina> disciplinas =  iRepoDisciplina.findDisciplinas(dadosMatriculaDTO.codigo_disciplina());
         long turmaId = 0;
         long disciplinaId = 0;
@@ -141,12 +140,12 @@ public class DisciplinaService {
                 }
             }
         }
-        return new IdentificadoresDiscTurmaDTO(disciplinaId, turmaId);
+        return new IdsCadeira(disciplinaId, turmaId);
     }
 
-    private BaseDTO invocaMSMatricularAluno(DadosMatriculaDTO dadosMatriculaDTO, IdentificadoresDiscTurmaDTO tuplaIdsDiscTurma) {
+    private BaseDTO matricularAluno(DadosMatriculaDTO dadosMatriculaDTO, IdsCadeira tuplaIdsDiscTurma) {
         try{
-            String url = formataRequisicaoMatricularAluno(dadosMatriculaDTO.num_matricula(), tuplaIdsDiscTurma.disciplina_id(), tuplaIdsDiscTurma.turma_id());
+            String url = formatarRequisicaoMatricularAluno(dadosMatriculaDTO.num_matricula(), tuplaIdsDiscTurma.disciplina_id(), tuplaIdsDiscTurma.turma_id());
             RestTemplate restTemplate = new RestTemplate();
             BaseDTO dtoBase = new BaseDTO(false, "");
             dtoBase = restTemplate.postForObject(url, dtoBase, BaseDTO.class);
@@ -159,7 +158,7 @@ public class DisciplinaService {
         }
     }
 
-    private String formataRequisicaoMatricularAluno(long num_matric, long disciplina_id, long turma_id) {
+    private String formatarRequisicaoMatricularAluno(long num_matric, long disciplina_id, long turma_id) {
         String url = "http://localhost:8080/matricular_aluno/";
         url = url + String.valueOf(num_matric);
         url = url + "/" + String.valueOf(disciplina_id);
