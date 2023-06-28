@@ -1,8 +1,5 @@
-package DisciplinaServiceTests;
+package ServiceTests;
 
-import com.ms.common.DTO.ListaMatriculaDTO;
-import com.ms.common.DTO.MatriculaAlunoDTO;
-import com.msdisciplinas.msdisciplinas.DTO.DadosCadeiraAlunoDTO;
 import com.msdisciplinas.msdisciplinas.ENUM.CadastroDisciplinaEnum;
 import com.msdisciplinas.msdisciplinas.Model.Disciplina;
 import com.msdisciplinas.msdisciplinas.Model.Turma;
@@ -14,19 +11,11 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.web.client.RestTemplate;
-
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
-
-public class MSDisciplinaServiceTests {
+public class DisciplinaServiceTest {
 
     @Mock
     private IRepoDisciplina iRepoDisciplina;
@@ -36,9 +25,6 @@ public class MSDisciplinaServiceTests {
 
     @InjectMocks
     private DisciplinaService disciplinaService;
-
-    @Mock
-    private ListaMatriculaDTO listaMatriculaDTO;
 
     @BeforeEach
     public void setup() {
@@ -62,7 +48,6 @@ public class MSDisciplinaServiceTests {
 
         disciplina.setTurmas(new ArrayList<>());
         disciplina.getTurmas().add(turma);
-
         Optional<Turma> optionalTurma = Optional.of(turma);
 
         when(iRepoTurma.findByCode(codTurma)).thenReturn(turma);
@@ -70,7 +55,7 @@ public class MSDisciplinaServiceTests {
         when(iRepoDisciplina.save(disciplina)).thenReturn(disciplina);
 
         // Act
-        CadastroDisciplinaEnum resultado = disciplinaService.adicionaDisciplina(disciplina, codTurma);
+        CadastroDisciplinaEnum resultado = disciplinaService.adicionarDisciplina(disciplina, codTurma);
 
         // Assert
         assertEquals(CadastroDisciplinaEnum.ADICIONOU, resultado);
@@ -89,16 +74,10 @@ public class MSDisciplinaServiceTests {
         when(iRepoTurma.findByCode(codTurma)).thenReturn(null);
 
         // Act
-        CadastroDisciplinaEnum resultado = disciplinaService.adicionaDisciplina(disciplina, codTurma);
+        CadastroDisciplinaEnum resultado = disciplinaService.adicionarDisciplina(disciplina, codTurma);
 
         // Assert
         assertEquals(CadastroDisciplinaEnum.SEM_TURMAS, resultado);
     }
 
-
-    @Test
-    public void testObtemListaMatriculasAluno() {
-        when(listaMatriculaDTO.sucesso()).thenReturn(true);
-
-    }
 }

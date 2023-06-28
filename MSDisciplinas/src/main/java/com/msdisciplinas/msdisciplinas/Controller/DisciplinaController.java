@@ -21,12 +21,12 @@ public class DisciplinaController {
     @Autowired
     private DisciplinaService disciplinaService;
 
-    @PostMapping("/adicionar_disciplina")
+    @PostMapping("/adicionarDisciplina")
     public BaseDTO adicionarDisciplina(@RequestBody @Valid DadosCadastroDisciplinaDTO dadosCadastroDisciplinaDTO) {
         try {
             Disciplina disciplina = new Disciplina();
             BeanUtils.copyProperties(dadosCadastroDisciplinaDTO, disciplina);
-            CadastroDisciplinaEnum adicionou = disciplinaService.adicionaDisciplina(disciplina, dadosCadastroDisciplinaDTO.cod_turma());
+            CadastroDisciplinaEnum adicionou = disciplinaService.adicionarDisciplina(disciplina, dadosCadastroDisciplinaDTO.cod_turma());
 
             if (adicionou.equals(CadastroDisciplinaEnum.DISCIPLINA_JA_COM_TURMA)) {
                 throw new Exception("Disciplina já cadastrada nesta turma.");
@@ -46,10 +46,10 @@ public class DisciplinaController {
 
     }
 
-    @GetMapping("/obter_cadeiras_aluno/{cod_matric}")
-    public BaseDTO obtemCadeirasAluno(@PathVariable long cod_matric) {
+    @GetMapping("/obterCadeirasAluno/{cod_matric}")
+    public BaseDTO obterCadeirasAluno(@PathVariable long cod_matric) {
         try{
-            List<DadosCadeiraAlunoDTO> tuplaCodTurmaDisciplinaList = disciplinaService.obtemListaMatriculasAluno(cod_matric);
+            List<DadosCadeiraAlunoDTO> tuplaCodTurmaDisciplinaList = disciplinaService.obterListaMatriculasAluno(cod_matric);
             if (tuplaCodTurmaDisciplinaList.isEmpty()) {
                 throw new Exception("Cadeiras não encontradas para o aluno.");
             }
@@ -60,8 +60,8 @@ public class DisciplinaController {
         }
     }
 
-    @GetMapping("/obter_alunos_por_cadeira")
-    public BaseDTO obtemAlunosPorCadeira(@RequestBody @NotNull DadosCadeiraAlunoDTO tuplaCodTurmaDisciplina) {
+    @GetMapping("/obterAlunosPorCadeira")
+    public BaseDTO obterAlunosPorCadeira(@RequestBody @NotNull DadosCadeiraAlunoDTO tuplaCodTurmaDisciplina) {
         try{
             return disciplinaService.encontrarAlunosPorCadeira(tuplaCodTurmaDisciplina.codigo_disciplina(), tuplaCodTurmaDisciplina.cod_turma());
         } catch (Exception e) {
@@ -69,8 +69,8 @@ public class DisciplinaController {
         }
     }
 
-    @PostMapping("/matricular_aluno")
-    public BaseDTO matriculaAluno(@RequestBody @Valid DadosMatriculaDTO dadosMatriculaDTO) {
+    @PostMapping("/matricularAluno")
+    public BaseDTO matricularAluno(@RequestBody @Valid DadosMatriculaDTO dadosMatriculaDTO) {
         try {
             return disciplinaService.matricularAluno(dadosMatriculaDTO);
 

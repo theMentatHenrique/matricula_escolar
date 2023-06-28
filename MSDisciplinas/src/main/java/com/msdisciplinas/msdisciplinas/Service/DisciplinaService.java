@@ -5,7 +5,7 @@ import com.ms.common.DTO.ListaMatriculaDTO;
 import com.ms.common.DTO.MatriculaAlunoDTO;
 import com.msdisciplinas.msdisciplinas.DTO.DadosMatriculaDTO;
 import com.msdisciplinas.msdisciplinas.DTO.DadosCadeiraAlunoDTO;
-import com.msdisciplinas.msdisciplinas.DTO.IdsCadeira;
+import com.msdisciplinas.msdisciplinas.DTO.IdsTurmaDisciplinaDTO;
 import com.msdisciplinas.msdisciplinas.ENUM.CadastroDisciplinaEnum;
 import com.msdisciplinas.msdisciplinas.Model.Disciplina;
 import com.msdisciplinas.msdisciplinas.Model.Turma;
@@ -28,19 +28,19 @@ public class DisciplinaService {
     @Autowired
     private IRepoTurma iRepoTurma;
 
-    public CadastroDisciplinaEnum adicionaDisciplina(Disciplina disciplina, long cod_turma) {
+    public CadastroDisciplinaEnum adicionarDisciplina(Disciplina disciplina, long cod_turma) {
         try {
             Optional<Turma> turma = Optional.ofNullable(iRepoTurma.findByCode(cod_turma));
             if (turma.isEmpty()) {
                 return CadastroDisciplinaEnum.SEM_TURMAS;
             }
-            IdsCadeira tuplaIdsDiscTurma = obtemDisciplinaComTurma(disciplina.getCodigo_disciplina(), cod_turma);
-            if (tuplaIdsDiscTurma != null) {
+            IdsTurmaDisciplinaDTO idsCadeiraAlunoDTO = obtemDisciplinaComTurma(disciplina.getCodigo_disciplina(), cod_turma);
+            if (idsCadeiraAlunoDTO != null) {
                 return CadastroDisciplinaEnum.DISCIPLINA_JA_COM_TURMA;
             }
 
-            Turma referenceById = iRepoTurma.getReferenceById(turma.get().getId());
-            disciplina.getTurmas().add(referenceById);
+            Turma turmaReference = iRepoTurma.getReferenceById(turma.get().getId());
+            disciplina.getTurmas().add(turmaReference);
             iRepoDisciplina.save(disciplina);
             return CadastroDisciplinaEnum.ADICIONOU;
         } catch (Exception e ) {
@@ -48,7 +48,7 @@ public class DisciplinaService {
         }
     }
 
-    public List<DadosCadeiraAlunoDTO> obtemListaMatriculasAluno(long codMatric) {
+    public List<DadosCadeiraAlunoDTO> obterListaMatriculasAluno(long codMatric) {
         try{
             ListaMatriculaDTO listaMatriculaDTO = listarCadeirasAluno(codMatric);
             if (!listaMatriculaDTO.sucesso()) {return null;}
@@ -57,19 +57,19 @@ public class DisciplinaService {
             for (MatriculaAlunoDTO matricula: listaMatriculaDTO.listaMatriculas()) {
                 long codTurma = iRepoTurma.findCodTurma(matricula.turma_id());
                 Optional<Disciplina> disciplina = iRepoDisciplina.findById(matricula.disciplina_id());
-                if (disciplina == null || codTurma == 0) {
+                if (disciplina.isEmpty() || codTurma == 0) {
                     return null;
                 }
-
                 listaDiscTurmas.add(new DadosCadeiraAlunoDTO(disciplina.get().getCodigo_disciplina(), codTurma));
             }
+
             return listaDiscTurmas;
         } catch (Exception e) {
             return new ArrayList<>();
         }
     }
 
-    private static ListaMatriculaDTO listarCadeirasAluno(long codMatric) {
+    private  ListaMatriculaDTO listarCadeirasAluno(long codMatric) {
         String url = "http://localhost:8080/obter_cadeiras_aluno/";
         url += String.valueOf(codMatric);
         RestTemplate restTemplate = new RestTemplate();
@@ -79,7 +79,7 @@ public class DisciplinaService {
     
     public BaseDTO encontrarAlunosPorCadeira(long codDisciplina, long codTurma) {
         try{
-            IdsCadeira tuplaIdsDiscTurma = obtemDisciplinaComTurma(codDisciplina, codTurma);
+            IdsTurmaDisciplinaDTO tuplaIdsDiscTurma = obtemDisciplinaComTurma(codDisciplina, codTurma);
             if (tuplaIdsDiscTurma == null) {
                 return new BaseDTO(false, "Não foi encontrado nenhum aluno nesta cadeira.");
             }
@@ -106,12 +106,12 @@ public class DisciplinaService {
         }
     }
 
-    private IdsCadeira obtemDisciplinaComTurma(long codDisciplina, long codTurma) {
+    private IdsTurmaDisciplinaDTO obtemDisciplinaComTurma(long codDisciplina, long codTurma) {
         List<Disciplina> disciplinas = iRepoDisciplina.findDisciplinas(codDisciplina);
         for (Disciplina disciplina : disciplinas) {
             for(Turma turma : disciplina.getTurma()) {
                 if (turma.getCod_turma() == codTurma) {
-                    return new IdsCadeira(disciplina.getId(), turma.getId());
+                    return new IdsTurmaDisciplinaDTO(disciplina.getId(), turma.getId());
                 }
             }
         }
@@ -120,14 +120,14 @@ public class DisciplinaService {
 
     public BaseDTO matricularAluno(DadosMatriculaDTO dadosMatriculaDTO) throws Exception {
         try {
-            IdsCadeira tuplaIdsDiscTurma = encontraDisciplinaComTurma(dadosMatriculaDTO);
+            IdsTurmaDisciplinaDTO tuplaIdsDiscTurma = encontrarDisciplinaComTurma(dadosMatriculaDTO);
             return matricularAluno(dadosMatriculaDTO, tuplaIdsDiscTurma);
         } catch (Exception e) {
             return new BaseDTO(true,e.getMessage());
         }
     }
 
-    private IdsCadeira encontraDisciplinaComTurma(DadosMatriculaDTO dadosMatriculaDTO) {
+    private IdsTurmaDisciplinaDTO encontrarDisciplinaComTurma(DadosMatriculaDTO dadosMatriculaDTO) {
         List<Disciplina> disciplinas =  iRepoDisciplina.findDisciplinas(dadosMatriculaDTO.codigo_disciplina());
         long turmaId = 0;
         long disciplinaId = 0;
@@ -140,10 +140,10 @@ public class DisciplinaService {
                 }
             }
         }
-        return new IdsCadeira(disciplinaId, turmaId);
+        return new IdsTurmaDisciplinaDTO(disciplinaId, turmaId);
     }
 
-    private BaseDTO matricularAluno(DadosMatriculaDTO dadosMatriculaDTO, IdsCadeira tuplaIdsDiscTurma) {
+    private BaseDTO matricularAluno(DadosMatriculaDTO dadosMatriculaDTO, IdsTurmaDisciplinaDTO tuplaIdsDiscTurma) {
         try{
             String url = formatarRequisicaoMatricularAluno(dadosMatriculaDTO.num_matricula(), tuplaIdsDiscTurma.disciplina_id(), tuplaIdsDiscTurma.turma_id());
             RestTemplate restTemplate = new RestTemplate();

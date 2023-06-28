@@ -1,4 +1,4 @@
-package com.msdisciplinas.msdisciplinas.DisciplinaControllerTests;
+package com.msdisciplinas.msdisciplinas.ControllerTests;
 
 import com.ms.common.DTO.BaseDTO;
 import com.msdisciplinas.msdisciplinas.Controller.DisciplinaController;
@@ -23,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
-public class MSDisciplinaControllerTest {
+public class DisciplinaControllerTest {
 
     @Mock
     private DisciplinaService disciplinaService;
@@ -32,11 +32,11 @@ public class MSDisciplinaControllerTest {
     private DisciplinaController disciplinaController;
 
     @Test
-    public void testAdicionarDisciplina_Success() {
+    public void testAdicionarDisciplinaSuccess() {
         
         DadosCadastroDisciplinaDTO dadosCadastroDisciplinaDTO = new DadosCadastroDisciplinaDTO(100, "Disciplina A", "A", 100);
 
-        when(disciplinaService.adicionaDisciplina(any(Disciplina.class), any(Long.class))).thenReturn(CadastroDisciplinaEnum.ADICIONOU);
+        when(disciplinaService.adicionarDisciplina(any(Disciplina.class), any(Long.class))).thenReturn(CadastroDisciplinaEnum.ADICIONOU);
 
         BaseDTO result = disciplinaController.adicionarDisciplina(dadosCadastroDisciplinaDTO);
 
@@ -46,7 +46,7 @@ public class MSDisciplinaControllerTest {
     }
 
     @Test
-    public void testAdicionarDisciplina_DisciplinaJaComTurma() {
+    public void testAdicionarDisciplinaDisciplinaJaComTurma() {
         
         DadosCadastroDisciplinaDTO dadosCadastroDisciplinaDTO = new DadosCadastroDisciplinaDTO(100, "Disciplina A", "A", 100);
 
@@ -56,7 +56,7 @@ public class MSDisciplinaControllerTest {
         disciplina.setNome("Disciplina A");
         disciplina.setHorario("A");
 
-        when(disciplinaService.adicionaDisciplina(any(Disciplina.class), any(Long.class))).thenReturn(CadastroDisciplinaEnum.DISCIPLINA_JA_COM_TURMA);
+        when(disciplinaService.adicionarDisciplina(any(Disciplina.class), any(Long.class))).thenReturn(CadastroDisciplinaEnum.DISCIPLINA_JA_COM_TURMA);
 
         BaseDTO result = disciplinaController.adicionarDisciplina(dadosCadastroDisciplinaDTO);
 
@@ -66,7 +66,7 @@ public class MSDisciplinaControllerTest {
     }
 
     @Test
-    public void testAdicionarDisciplina_SemTurmas() {
+    public void testAdicionarDisciplinaSemTurmas() {
         
         DadosCadastroDisciplinaDTO dadosCadastroDisciplinaDTO = new DadosCadastroDisciplinaDTO(100, "Disciplina A", "A", 100);
 
@@ -76,7 +76,7 @@ public class MSDisciplinaControllerTest {
         disciplina.setNome("Disciplina A");
         disciplina.setHorario("A");
 
-        when(disciplinaService.adicionaDisciplina(any(Disciplina.class), any(Long.class))).thenReturn(CadastroDisciplinaEnum.SEM_TURMAS);
+        when(disciplinaService.adicionarDisciplina(any(Disciplina.class), any(Long.class))).thenReturn(CadastroDisciplinaEnum.SEM_TURMAS);
 
         BaseDTO result = disciplinaController.adicionarDisciplina(dadosCadastroDisciplinaDTO);
 
@@ -86,7 +86,7 @@ public class MSDisciplinaControllerTest {
     }
 
     @Test
-    public void testObtemCadeirasAluno_Success() {
+    public void testObtemCadeirasAlunoSuccess() {
         
         long codMatric = 100;
 
@@ -94,9 +94,9 @@ public class MSDisciplinaControllerTest {
         cadeirasAluno.add(new DadosCadeiraAlunoDTO(1, 100));
         cadeirasAluno.add(new DadosCadeiraAlunoDTO(2, 200));
 
-        when(disciplinaService.obtemListaMatriculasAluno(codMatric)).thenReturn(cadeirasAluno);
+        when(disciplinaService.obterListaMatriculasAluno(codMatric)).thenReturn(cadeirasAluno);
 
-        BaseDTO result = disciplinaController.obtemCadeirasAluno(codMatric);
+        BaseDTO result = disciplinaController.obterCadeirasAluno(codMatric);
 
         
         assertTrue(result.sucess());
@@ -104,15 +104,15 @@ public class MSDisciplinaControllerTest {
     }
 
     @Test
-    public void testObtemCadeirasAluno_NoCadeirasFound() {
+    public void testObtemCadeirasAlunoNoCadeirasFound() {
         
         long codMatric = 100;
 
         List<DadosCadeiraAlunoDTO> cadeirasAluno = new ArrayList<>();
 
-        when(disciplinaService.obtemListaMatriculasAluno(codMatric)).thenReturn(cadeirasAluno);
+        when(disciplinaService.obterListaMatriculasAluno(codMatric)).thenReturn(cadeirasAluno);
 
-        BaseDTO result = disciplinaController.obtemCadeirasAluno(codMatric);
+        BaseDTO result = disciplinaController.obterCadeirasAluno(codMatric);
 
         
         assertFalse(result.sucess());
@@ -120,13 +120,13 @@ public class MSDisciplinaControllerTest {
     }
 
     @Test
-    public void testObtemCadeirasAluno_Exception() {
+    public void testObtemCadeirasAlunoException() {
         
         long codMatric = 100;
 
-        when(disciplinaService.obtemListaMatriculasAluno(codMatric)).thenThrow(new RuntimeException("Erro ao obter as cadeiras do aluno."));
+        when(disciplinaService.obterListaMatriculasAluno(codMatric)).thenThrow(new RuntimeException("Erro ao obter as cadeiras do aluno."));
 
-        BaseDTO result = disciplinaController.obtemCadeirasAluno(codMatric);
+        BaseDTO result = disciplinaController.obterCadeirasAluno(codMatric);
 
         
         assertFalse(result.sucess());
@@ -134,7 +134,7 @@ public class MSDisciplinaControllerTest {
     }
 
     @Test
-    public void testObtemAlunosPorCadeira_Success() {
+    public void testObtemAlunosPorCadeiraSuccess() {
         
         DadosCadeiraAlunoDTO dadosCadeiraAlunoDTO = new DadosCadeiraAlunoDTO(1, 100);
 
@@ -143,7 +143,7 @@ public class MSDisciplinaControllerTest {
         when(disciplinaService.encontrarAlunosPorCadeira(dadosCadeiraAlunoDTO.codigo_disciplina(), dadosCadeiraAlunoDTO.cod_turma()))
                 .thenReturn(new BaseDTO(true, alunos));
 
-        BaseDTO result = disciplinaController.obtemAlunosPorCadeira(dadosCadeiraAlunoDTO);
+        BaseDTO result = disciplinaController.obterAlunosPorCadeira(dadosCadeiraAlunoDTO);
 
         
         assertTrue(result.sucess());
@@ -151,7 +151,7 @@ public class MSDisciplinaControllerTest {
     }
 
     @Test
-    public void testObtemAlunosPorCadeira_NoAlunosFound() {
+    public void testObtemAlunosPorCadeiraNoAlunosFound() {
         
         DadosCadeiraAlunoDTO dadosCadeiraAlunoDTO = new DadosCadeiraAlunoDTO(1, 100);
 
@@ -160,7 +160,7 @@ public class MSDisciplinaControllerTest {
         when(disciplinaService.encontrarAlunosPorCadeira(dadosCadeiraAlunoDTO.codigo_disciplina(), dadosCadeiraAlunoDTO.cod_turma()))
                 .thenReturn(new BaseDTO(true, alunos));
 
-        BaseDTO result = disciplinaController.obtemAlunosPorCadeira(dadosCadeiraAlunoDTO);
+        BaseDTO result = disciplinaController.obterAlunosPorCadeira(dadosCadeiraAlunoDTO);
 
         
         assertTrue(result.sucess());
@@ -168,14 +168,14 @@ public class MSDisciplinaControllerTest {
     }
 
     @Test
-    public void testObtemAlunosPorCadeira_Exception() {
+    public void testObtemAlunosPorCadeiraException() {
         
         DadosCadeiraAlunoDTO dadosCadeiraAlunoDTO = new DadosCadeiraAlunoDTO(1, 100);
 
         when(disciplinaService.encontrarAlunosPorCadeira(dadosCadeiraAlunoDTO.codigo_disciplina(), dadosCadeiraAlunoDTO.cod_turma()))
                 .thenThrow(new RuntimeException("Erro ao obter os alunos da cadeira."));
 
-        BaseDTO result = disciplinaController.obtemAlunosPorCadeira(dadosCadeiraAlunoDTO);
+        BaseDTO result = disciplinaController.obterAlunosPorCadeira(dadosCadeiraAlunoDTO);
 
         
         assertFalse(result.sucess());
@@ -183,29 +183,14 @@ public class MSDisciplinaControllerTest {
     }
 
     @Test
-    public void testObtemAlunosPorCadeira_Exception1() {
-        
-        DadosCadeiraAlunoDTO dadosCadeiraAlunoDTO = new DadosCadeiraAlunoDTO(1, 100);
-
-        when(disciplinaService.encontrarAlunosPorCadeira(dadosCadeiraAlunoDTO.codigo_disciplina(), dadosCadeiraAlunoDTO.cod_turma()))
-                .thenThrow(new RuntimeException("Erro ao obter os alunos da cadeira."));
-
-        BaseDTO result = disciplinaController.obtemAlunosPorCadeira(dadosCadeiraAlunoDTO);
-
-        
-        assertFalse(result.sucess());
-        assertEquals("Erro ao obter os alunos da cadeira.", result.response());
-    }
-
-    @Test
-    public void testMatriculaAluno_Success() throws Exception {
+    public void testMatriculaAlunoSuccess() throws Exception {
         
         DadosMatriculaDTO dadosMatriculaDTO = new DadosMatriculaDTO(12345, 100, 200);
 
         when(disciplinaService.matricularAluno(dadosMatriculaDTO))
                 .thenReturn(new BaseDTO(true, "Aluno matriculado com sucesso."));
 
-        BaseDTO result = disciplinaController.matriculaAluno(dadosMatriculaDTO);
+        BaseDTO result = disciplinaController.matricularAluno(dadosMatriculaDTO);
 
         
         assertTrue(result.sucess());
@@ -213,14 +198,14 @@ public class MSDisciplinaControllerTest {
     }
 
     @Test
-    public void testMatriculaAluno_Exception() throws Exception {
+    public void testMatriculaAlunoException() throws Exception {
     
         DadosMatriculaDTO dadosMatriculaDTO = new DadosMatriculaDTO(12345, 100, 200);
 
         when(disciplinaService.matricularAluno(dadosMatriculaDTO))
                 .thenThrow(new RuntimeException("Erro ao matricular o aluno."));
 
-        BaseDTO result = disciplinaController.matriculaAluno(dadosMatriculaDTO);
+        BaseDTO result = disciplinaController.matricularAluno(dadosMatriculaDTO);
 
         
         assertFalse(result.sucess());
