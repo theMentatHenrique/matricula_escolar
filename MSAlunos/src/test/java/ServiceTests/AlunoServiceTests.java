@@ -2,8 +2,8 @@ package ServiceTests;
 
 import com.msalunos.msalunos.Model.Aluno;
 import com.msalunos.msalunos.Model.Cadeira;
-import com.msalunos.msalunos.Repository.AlunoRepo;
-import com.msalunos.msalunos.Repository.CadeiraRepo;
+import com.msalunos.msalunos.Repository.IRepoAluno;
+import com.msalunos.msalunos.Repository.IRepoCadeira;
 import com.msalunos.msalunos.Service.AlunoService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,15 +19,15 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.when;
 
-public class MSAlunosServiceTests {
+public class AlunoServiceTests {
     @Mock
-    private AlunoRepo alunoRepo;
+    private IRepoAluno alunoRepo;
 
     @InjectMocks
     private AlunoService alunoService;
 
     @Mock
-    private CadeiraRepo cadeiraRepo;
+    private IRepoCadeira cadeiraRepo;
 
     @BeforeEach
     public void setUp() {

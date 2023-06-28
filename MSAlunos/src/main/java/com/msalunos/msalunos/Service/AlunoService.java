@@ -3,8 +3,8 @@ package com.msalunos.msalunos.Service;
 
 import com.msalunos.msalunos.Model.Aluno;
 import com.msalunos.msalunos.Model.Cadeira;
-import com.msalunos.msalunos.Repository.AlunoRepo;
-import com.msalunos.msalunos.Repository.CadeiraRepo;
+import com.msalunos.msalunos.Repository.IRepoAluno;
+import com.msalunos.msalunos.Repository.IRepoCadeira;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -15,10 +15,10 @@ import java.util.List;
 public class AlunoService {
 
     @Autowired
-    private AlunoRepo alunoRepo;
+    private IRepoAluno alunoRepo;
 
     @Autowired
-    private CadeiraRepo cadeiraRepo;
+    private IRepoCadeira cadeiraRepo;
 
     public List<Aluno> getAlunosPorNome(String nome) {
         try {

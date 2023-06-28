@@ -6,8 +6,8 @@ import com.ms.common.DTO.MatriculaAlunoDTO;
 import com.msalunos.msalunos.DTO.DadosCadastroAlunoDTO;
 import com.msalunos.msalunos.Model.Aluno;
 import com.msalunos.msalunos.Model.Cadeira;
-import com.msalunos.msalunos.Repository.AlunoRepo;
-import com.msalunos.msalunos.Repository.CadeiraRepo;
+import com.msalunos.msalunos.Repository.IRepoAluno;
+import com.msalunos.msalunos.Repository.IRepoCadeira;
 import com.msalunos.msalunos.Service.AlunoService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
@@ -23,20 +23,20 @@ import java.util.Optional;
 public class AlunoController {
 
     @Autowired
-    private AlunoRepo alunoRepo;
+    private IRepoAluno iRepoAluno;
 
     @Autowired
     private AlunoService alunoService;
 
     @Autowired
-    private CadeiraRepo cadeiraRepo;
+    private IRepoCadeira iRepoCadeira;
 
     @PostMapping("/adicionar_aluno")
-    public BaseDTO adicionaAluno(@RequestBody @Valid DadosCadastroAlunoDTO dadosCadastroAlunoDTO) {
+    public BaseDTO adicionarAluno(@RequestBody @Valid DadosCadastroAlunoDTO dadosCadastroAlunoDTO) {
         try{
             Aluno aluno = new Aluno();
             BeanUtils.copyProperties(dadosCadastroAlunoDTO ,aluno);
-            alunoRepo.save(aluno);
+            iRepoAluno.save(aluno);
             return new BaseDTO(true, "Aluno cadastrado com sucesso.");
         } catch (Exception e) {
             return new BaseDTO(false, e.getMessage());
@@ -44,7 +44,7 @@ public class AlunoController {
     }
 
     @GetMapping("/listar_alunos/{nome}")
-    public BaseDTO getAlunosPorNome(@PathVariable @NotEmpty String nome) {
+    public BaseDTO listarAlunosPorNome(@PathVariable @NotEmpty String nome) {
         try {
             List<Aluno> alunosPorNome = alunoService.getAlunosPorNome(nome);
             if (alunosPorNome.size() == 0) {
@@ -57,9 +57,9 @@ public class AlunoController {
     }
 
     @GetMapping("/listar_todos_alunos")
-    public BaseDTO listaTodosAlunos() {
+    public BaseDTO listarTodosAlunos() {
         try {
-            List<Aluno> alunos = alunoRepo.findAll();
+            List<Aluno> alunos = iRepoAluno.findAll();
             if (alunos.isEmpty()) {
                 throw new Exception("Não há alunos cadastrados.");
             }
@@ -70,7 +70,7 @@ public class AlunoController {
     }
 
     @PostMapping("/matricular_aluno/{numMatric}/{disciplina_id}/{turma_id}")
-    public BaseDTO matriculaAluno(@PathVariable @NotEmpty long numMatric, @PathVariable long disciplina_id, @PathVariable long turma_id) {
+    public BaseDTO matricularAluno(@PathVariable @NotEmpty long numMatric, @PathVariable long disciplina_id, @PathVariable long turma_id) {
         try{
             if(!alunoService.matricularAluno(numMatric, disciplina_id, turma_id)) {
                 throw new Exception("Não foi possível matricular o aluno");
@@ -82,9 +82,9 @@ public class AlunoController {
     }
 
     @GetMapping("/obter_aluno/{numMatric}")
-    public BaseDTO getAluno(@PathVariable @NotEmpty long numMatric) {
+    public BaseDTO obterAluno(@PathVariable @NotEmpty long numMatric) {
         try {
-            Optional<Aluno> alunoObtido = alunoRepo.findById(numMatric);
+            Optional<Aluno> alunoObtido = iRepoAluno.findById(numMatric);
             if (alunoObtido.isEmpty()) {
                 throw new Exception("Não foi encontrado nenhum aluno com este número de matricula.");
             }
@@ -97,9 +97,9 @@ public class AlunoController {
     }
 
     @GetMapping("/obter_cadeiras_aluno/{cod_matric}")
-    public ListaMatriculaDTO obtemCadeirasAluno(@PathVariable long cod_matric) {
+    public ListaMatriculaDTO obterCadeirasAluno(@PathVariable long cod_matric) {
         try{
-            Optional<Aluno> aluno = alunoRepo.findById(cod_matric);
+            Optional<Aluno> aluno = iRepoAluno.findById(cod_matric);
             if (aluno.isEmpty()) {
                 throw new Exception();
             }
@@ -115,9 +115,9 @@ public class AlunoController {
     }
 
     @GetMapping("/obter_alunos_por_cadeira/{disciplina_id}/{turma_id}")
-    public BaseDTO obtemAlunos(@PathVariable long disciplina_id, @PathVariable long turma_id) {
+    public BaseDTO obterAlunosPorCadeira(@PathVariable long disciplina_id, @PathVariable long turma_id) {
         try {
-            Cadeira cadeira = cadeiraRepo.findByFk(disciplina_id, turma_id);
+            Cadeira cadeira = iRepoCadeira.findByFk(disciplina_id, turma_id);
 
             if (cadeira == null || cadeira.getAlunos() == null || cadeira.getAlunos().isEmpty()) {
                 throw new Exception("Alunos não encontrados para esta cadeira.");

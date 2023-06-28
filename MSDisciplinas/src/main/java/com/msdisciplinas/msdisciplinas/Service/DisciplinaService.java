@@ -73,17 +73,16 @@ public class DisciplinaService {
         String url = "http://localhost:8080/obter_cadeiras_aluno/";
         url += String.valueOf(codMatric);
         RestTemplate restTemplate = new RestTemplate();
-        ListaMatriculaDTO listaMatriculaDTO = restTemplate.getForObject(url, ListaMatriculaDTO.class);
-        return listaMatriculaDTO;
+        return restTemplate.getForObject(url, ListaMatriculaDTO.class);
     }
     
     public BaseDTO encontrarAlunosPorCadeira(long codDisciplina, long codTurma) {
         try{
-            IdsTurmaDisciplinaDTO tuplaIdsDiscTurma = obtemDisciplinaComTurma(codDisciplina, codTurma);
-            if (tuplaIdsDiscTurma == null) {
+            IdsTurmaDisciplinaDTO idsTurmaDisciplinaDTO = obtemDisciplinaComTurma(codDisciplina, codTurma);
+            if (idsTurmaDisciplinaDTO == null) {
                 return new BaseDTO(false, "Não foi encontrado nenhum aluno nesta cadeira.");
             }
-            return buscarAlunos(tuplaIdsDiscTurma.disciplina_id(), tuplaIdsDiscTurma.turma_id());
+            return buscarAlunos(idsTurmaDisciplinaDTO.disciplina_id(), idsTurmaDisciplinaDTO.turma_id());
         } catch (Exception e) {
             return new BaseDTO(false, e.getMessage());
         }
@@ -102,7 +101,6 @@ public class DisciplinaService {
             return dtoBase;
         } catch (Exception e) {
             return new BaseDTO(false, e.getMessage());
-
         }
     }
 
@@ -120,8 +118,8 @@ public class DisciplinaService {
 
     public BaseDTO matricularAluno(DadosMatriculaDTO dadosMatriculaDTO) throws Exception {
         try {
-            IdsTurmaDisciplinaDTO tuplaIdsDiscTurma = encontrarDisciplinaComTurma(dadosMatriculaDTO);
-            return matricularAluno(dadosMatriculaDTO, tuplaIdsDiscTurma);
+            IdsTurmaDisciplinaDTO idsTurmaDisciplinaDTO = encontrarDisciplinaComTurma(dadosMatriculaDTO);
+            return matricularAluno(dadosMatriculaDTO, idsTurmaDisciplinaDTO);
         } catch (Exception e) {
             return new BaseDTO(true,e.getMessage());
         }
@@ -131,12 +129,12 @@ public class DisciplinaService {
         List<Disciplina> disciplinas =  iRepoDisciplina.findDisciplinas(dadosMatriculaDTO.codigo_disciplina());
         long turmaId = 0;
         long disciplinaId = 0;
-        for(Disciplina d : disciplinas) {
-            for(Turma t : d.getTurmas()) {
-                if (t.getCod_turma() == dadosMatriculaDTO.cod_turma()){
+        for(Disciplina disciplina : disciplinas) {
+            for(Turma turma : disciplina.getTurmas()) {
+                if (turma.getCod_turma() == dadosMatriculaDTO.cod_turma()){
 
-                    turmaId = t.getId();
-                    disciplinaId = d.getId();
+                    turmaId = turma.getId();
+                    disciplinaId = disciplina.getId();
                 }
             }
         }
@@ -165,4 +163,5 @@ public class DisciplinaService {
         url = url + "/" + String.valueOf(turma_id);
         return url;
     }
+
 }
