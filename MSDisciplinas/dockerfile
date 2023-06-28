@@ -1,0 +1,13 @@
+FROM openjdk:17-jdk
+
+# Diretório de trabalho dentro do contêiner
+WORKDIR /app
+
+# Copiar o JAR da aplicação para o contêiner
+COPY out/artifacts/msdisciplinas_jar/msdisciplinas.jar  msdisciplinas.jar
+
+# Porta em que a aplicação expõe
+EXPOSE 8081
+
+# Comando para executar a aplicação
+CMD ["java", "-jar", "msdisciplinas.jar"]
