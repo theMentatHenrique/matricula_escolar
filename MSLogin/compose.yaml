@@ -1,0 +1,25 @@
+version: '3'
+services:
+  mysql-container:
+    image: mysql:8.0
+    container_name: mysql-container
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password
+      MYSQL_DATABASE: nome_do_banco
+      MYSQL_USER: usuario_do_banco
+      MYSQL_PASSWORD: senha_do_banco
+    ports:
+      - 3306:3306
+    volumes:
+      - ./mysql-data:/var/lib/mysql
+
+  spring-app:
+    build:
+      context: .
+      dockerfile: dockerfile
+    container_name: ms-login-app
+    ports:
+      - 8082:8082
+    depends_on:
+      - mysql-container
